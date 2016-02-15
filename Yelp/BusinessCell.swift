@@ -40,6 +40,7 @@ class BusinessCell: UITableViewCell {
         
         nameLabel.preferredMaxLayoutWidth = nameLabel.frame.size.width
         distanceLabel.preferredMaxLayoutWidth = distanceLabel.frame.size.width
+        categoriesLabel.preferredMaxLayoutWidth = categoriesLabel.frame.size.width
         
     }
     
