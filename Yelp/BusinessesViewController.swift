@@ -40,14 +40,10 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         searchBar.delegate = self
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
-        Business.searchWithTerm("Restaurants", sort: .Distance, categories: nil, deals: nil, offset: 0) { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm("Thai", sort: .Distance, categories: nil, deals: nil, offset: 0) { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.filteredBusinesses = businesses
             self.tableView.reloadData()
-            
-            for business in businesses {
-                print(business.name)
-            }
         }
     }
 
@@ -113,8 +109,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         filteredBusinesses = businesses
         tableView.reloadData()
     }
-    
-    
+
     func scrollViewDidScroll(scrollView: UIScrollView) {
         if (!requestingData) {
             let scrollViewContentHeight = tableView.contentSize.height
@@ -134,10 +129,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
                     
                     self.loadingMoreView!.stopAnimating()
                     self.requestingData = false
-                    
-                    for business in businesses {
-                        print(business.name)
-                    }
+                    print(self.businesses.count)
 
                 }
             }
