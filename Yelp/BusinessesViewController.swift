@@ -40,7 +40,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         searchBar.delegate = self
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
-        Business.searchWithTerm("Thai", sort: .Distance, categories: nil, deals: nil, offset: 0) { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm("Restaurants", sort: nil, categories: nil, deals: nil, offset: 0) { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.filteredBusinesses = businesses
             self.tableView.reloadData()
@@ -121,7 +121,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
                 loadingMoreView?.frame = frame
                 loadingMoreView!.startAnimating()
                 
-                Business.searchWithTerm("Restaurants", sort: .Distance, categories: nil, deals: nil, offset: self.businesses.count) { (businesses: [Business]!, error: NSError!) -> Void in
+                Business.searchWithTerm("Restaurants", sort: nil, categories: nil, deals: nil, offset: self.businesses.count) { (businesses: [Business]!, error: NSError!) -> Void in
                     self.businesses! += businesses
                     self.filteredBusinesses! += businesses
                     
@@ -129,7 +129,9 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
                     
                     self.loadingMoreView!.stopAnimating()
                     self.requestingData = false
-                    print(self.businesses.count)
+                    for business in businesses {
+                        print(business.name)
+                    }
 
                 }
             }
