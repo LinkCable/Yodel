@@ -129,10 +129,6 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
                     
                     self.loadingMoreView!.stopAnimating()
                     self.requestingData = false
-                    for business in businesses {
-                        print(business.name)
-                    }
-
                 }
             }
         }
