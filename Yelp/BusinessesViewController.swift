@@ -8,12 +8,14 @@
 
 import UIKit
 
-class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UIScrollViewDelegate {
 
     var businesses: [Business]!
     @IBOutlet weak var tableView: UITableView!
     var filteredBusinesses: [Business]!
     var searchBar: UISearchBar!
+    var requestingData = false
+    var loadingMoreView:InfiniteScrollActivityView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,32 +25,30 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
-        Business.searchWithTerm("Thai", completion: { (businesses: [Business]!, error: NSError!) -> Void in
-            self.businesses = businesses
-            self.filteredBusinesses = businesses
-            self.tableView.reloadData()
-            for business in businesses {
-                print(business.name!)
-                print(business.address!)
-            }
-            
-        })
+        // Set up Infinite Scroll loading indicator
+        let frame = CGRectMake(0, tableView.contentSize.height, tableView.bounds.size.width, InfiniteScrollActivityView.defaultHeight)
+        loadingMoreView = InfiniteScrollActivityView(frame: frame)
+        loadingMoreView!.hidden = true
+        tableView.addSubview(loadingMoreView!)
+        
+        var insets = tableView.contentInset;
+        insets.bottom += InfiniteScrollActivityView.defaultHeight;
+        tableView.contentInset = insets
+
         
         searchBar = UISearchBar()
         searchBar.delegate = self
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
-        
-/* Example of Yelp search with more search options specified
-        Business.searchWithTerm("Restaurants", sort: .Distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm("Restaurants", sort: .Distance, categories: nil, deals: nil, offset: 0) { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
+            self.filteredBusinesses = businesses
+            self.tableView.reloadData()
             
             for business in businesses {
-                print(business.name!)
-                print(business.address!)
+                print(business.name)
             }
         }
-*/
     }
 
     override func didReceiveMemoryWarning() {
@@ -113,4 +113,35 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         filteredBusinesses = businesses
         tableView.reloadData()
     }
+    
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if (!requestingData) {
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.dragging) {
+                requestingData = true
+                let frame = CGRectMake(0, tableView.contentSize.height, tableView.bounds.size.width, InfiniteScrollActivityView.defaultHeight)
+                loadingMoreView?.frame = frame
+                loadingMoreView!.startAnimating()
+                
+                Business.searchWithTerm("Restaurants", sort: .Distance, categories: nil, deals: nil, offset: self.businesses.count) { (businesses: [Business]!, error: NSError!) -> Void in
+                    self.businesses! += businesses
+                    self.filteredBusinesses! += businesses
+                    
+                    self.tableView.reloadData()
+                    
+                    self.loadingMoreView!.stopAnimating()
+                    self.requestingData = false
+                    
+                    for business in businesses {
+                        print(business.name)
+                    }
+
+                }
+            }
+        }
+    }
+
 }
